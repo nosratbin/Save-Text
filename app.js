@@ -56,6 +56,12 @@ app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
+for (const page of ['about', 'faq', 'privacy']) {
+    app.get(`/${page}`, (req, res) => {
+        res.sendFile(path.join(__dirname, 'public', `${page}.html`));
+    });
+}
+
 app.use((req, res) => {
     res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
 });

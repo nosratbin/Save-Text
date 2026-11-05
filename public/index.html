@@ -73,11 +73,26 @@
             <button id="logout-btn" onclick="logout()" class="btn btn-small hidden">Log out</button>
         </div>
         <div class="flex-1 overflow-y-auto pb-4">
-            <h3 id="my-texts-header" class="side-label hidden">My texts</h3>
-            <ul id="my-texts" class="side-list"></ul>
-            <h3 class="side-label">Public texts</h3>
+            <h3 id="my-texts-header" class="side-label side-label-mine hidden">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM5 21a7 7 0 0114 0"></path>
+                </svg>
+                My texts
+            </h3>
+            <ul id="my-texts" class="side-list side-list-mine"></ul>
+            <h3 class="side-label">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 21a9 9 0 100-18 9 9 0 000 18zM3 12h18M12 3c2.5 2.5 3.5 5.5 3.5 9s-1 6.5-3.5 9c-2.5-2.5-3.5-5.5-3.5-9s1-6.5 3.5-9z"></path>
+                </svg>
+                Public texts
+            </h3>
             <ul id="public-texts" class="side-list"></ul>
         </div>
+        <nav class="side-footer" aria-label="About SaveText">
+            <a href="/about">About</a>
+            <a href="/faq">FAQ</a>
+            <a href="/privacy">Privacy</a>
+        </nav>
     </div>
     <!-- Menu Toggle Button (Hamburger) -->
     <button id="menu-btn" class="icon-btn md:hidden fixed top-4 left-4 z-50" onclick="toggleSideMenu()" aria-label="Open menu">
@@ -86,7 +101,7 @@
         </svg>
     </button>
     <!-- Main Content -->
-    <main class="flex-1 min-w-0 flex flex-col justify-center items-center min-h-screen px-4 pt-20 pb-6 md:p-8 md:ml-64">
+    <main class="flex-1 min-w-0 flex justify-center items-center min-h-screen px-4 pt-20 pb-6 md:p-8 md:ml-64">
         <div class="card w-full max-w-2xl">
             <svg width="160" height="40" viewBox="0 0 160 40" xmlns="http://www.w3.org/2000/svg" class="mx-auto mb-6" style="overflow: visible" role="img" aria-label="SaveText">
                 <!-- Document Icon -->
@@ -102,8 +117,8 @@
                 </text>
             </svg>
 
-            <h1 class="page-title text-center mb-1">Save and share text online</h1>
-            <p class="subtitle text-center mb-6">Paste your text, pick an expiry and get a link to share. No account needed.</p>
+            <h1 class="visually-hidden">Save and share text online</h1>
+            <p class="visually-hidden">Paste your text, pick an expiry and get a link to share. No account needed.</p>
 
             <input type="text" id="title" placeholder="Title" aria-label="Title" class="field">
             <textarea id="content" placeholder="Write or paste text" aria-label="Text" class="field h-48"></textarea>
@@ -131,25 +146,6 @@
                 <a id="result-link" class="result-link" href="#"><span id="result-base"></span><span id="result-id" class="result-id"></span></a>
             </div>
         </div>
-
-        <section class="about w-full max-w-2xl">
-            <h2>How it works</h2>
-            <ol>
-                <li>Type or paste your text and give it a title.</li>
-                <li>Choose when it expires: 1 hour, 1 day, 1 week, 1 month, 1 year, or never.</li>
-                <li>Save it and share the link. Anyone with the link can read the text or open the raw version.</li>
-            </ol>
-
-            <h2>Common questions</h2>
-            <h3>Do I need an account?</h3>
-            <p>No. You can save and share text without an account. Log in to keep a text under your account, so only you can change it.</p>
-            <h3>Are my texts private?</h3>
-            <p>No. Anyone with the link can read a text, even one saved under an account. Don't save passwords or other sensitive information.</p>
-            <h3>What happens when a text expires?</h3>
-            <p>It's deleted and its link stops working. Texts set to never expire stay until someone deletes them.</p>
-            <h3>Is SaveText free?</h3>
-            <p>Yes, saving and sharing text is free.</p>
-        </section>
     </main>
 
     <script>

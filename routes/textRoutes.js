@@ -171,7 +171,7 @@ router.get('/:id', async (req, res) => {
                 </head>
                 <body class="app min-h-screen flex flex-col items-center justify-center p-4">
                     <div class="card w-full max-w-2xl">
-                        <h1 class="page-title mb-6">${escapedTitle || 'Untitled Text'}</h1>
+                        <h1 class="page-title text-center mb-6">${escapedTitle || 'Untitled Text'}</h1>
                         
                         <label for="titleInput" class="label">Title</label>
                         <input type="text" id="titleInput" value="${escapedTitle || ''}" placeholder="Title" class="field">
