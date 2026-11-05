@@ -3,110 +3,180 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SaveText - Store and Share Your Text Easily</title>
-    <meta name="description" content="SaveText is a simple tool to store and share text online. Create, edit, and share your notes securely with ease.">
+    <title>SaveText: Save and Share Text Online for Free</title>
+    <meta name="description" content="Paste text, set an expiry and get a shareable link in seconds. SaveText is a free online notepad with no sign-up needed.">
     <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://save-text.onrender.com/">
     <!-- Open Graph Tags -->
-    <meta property="og:title" content="SaveText - Store and Share Your Text Easily">
-    <meta property="og:description" content="SaveText is a simple tool to store and share text online. Create, edit, and share your notes securely with ease.">
+    <meta property="og:title" content="SaveText: Save and Share Text Online for Free">
+    <meta property="og:description" content="Paste text, set an expiry and get a shareable link in seconds. SaveText is a free online notepad with no sign-up needed.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://save-text.onrender.com/">
-    <meta property="og:image" content="https://i.ibb.co/ympCjkXm/image.jpg">
+    <meta property="og:image" content="https://save-text.onrender.com/og-image.png">
     <meta property="og:site_name" content="SaveText">
     <!-- Twitter Card Tags -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="SaveText - Store and Share Your Text Easily">
-    <meta name="twitter:description" content="SaveText is a simple tool to store and share text online. Create, edit, and share your notes securely with ease.">
-        <!-- Favicon -->
-        <link rel="icon" type="image/png" href="https://i.ibb.co.com/0p1Y9K6s/favicon-32x32.png">
+    <meta name="twitter:title" content="SaveText: Save and Share Text Online for Free">
+    <meta name="twitter:description" content="Paste text, set an expiry and get a shareable link in seconds. SaveText is a free online notepad with no sign-up needed.">
+    <meta name="twitter:image" content="https://save-text.onrender.com/og-image.png">
+    <!-- Structured data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "WebSite",
+                "name": "SaveText",
+                "url": "https://save-text.onrender.com/"
+            },
+            {
+                "@type": "WebApplication",
+                "name": "SaveText",
+                "url": "https://save-text.onrender.com/",
+                "applicationCategory": "UtilitiesApplication",
+                "operatingSystem": "Any",
+                "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+            }
+        ]
+    }
+    </script>
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+    <link href="/theme.css" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-900 text-gray-100 min-h-screen flex">
+<body class="app min-h-screen flex">
     <!-- Sidebar -->
-    <div id="side-menu" class="fixed inset-y-0 left-0 w-64 bg-gray-800 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col z-40">
-        <div class="p-4 border-b border-gray-700 flex justify-between items-center">
-            <h2 class="text-xl font-semibold text-gray-100 flex items-center gap-2">
-                <svg width="20" height="20" viewBox="0 0 24 30" xmlns="http://www.w3.org/2000/svg">
-                  <rect x="0" y="0" width="24" height="30" rx="3" ry="3" fill="#CBD5E1" />
-                  <rect x="5" y="6" width="14" height="2" fill="#94A3B8" />
-                  <rect x="5" y="12" width="14" height="2" fill="#94A3B8" />
-                  <rect x="5" y="18" width="10" height="2" fill="#94A3B8" />
+    <div id="side-menu" class="sidebar fixed inset-y-0 left-0 w-64 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col z-40">
+        <div class="px-4 h-16 flex justify-between items-center">
+            <h2 class="sidebar-title">
+                <svg width="16" height="20" viewBox="0 0 24 30" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <rect x="0" y="0" width="24" height="30" rx="3" ry="3" fill="#ededed" />
+                  <rect x="5" y="6" width="14" height="2" fill="#85858b" />
+                  <rect x="5" y="12" width="14" height="2" fill="#85858b" />
+                  <rect x="5" y="18" width="10" height="2" fill="#85858b" />
                 </svg>
-                Saved Texts
+                Saved texts
               </h2>
             <!-- Close Button for Mobile -->
-            <button id="sidebar-close-btn" class="md:hidden p-2 text-gray-300 hover:text-gray-100 hidden" onclick="toggleSideMenu()">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            <button id="sidebar-close-btn" class="icon-btn md:hidden hidden" onclick="toggleSideMenu()" aria-label="Close menu">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
             </button>
         </div>
-        <div id="auth-section" class="p-4 flex gap-3">
-            <button id="login-btn" onclick="window.location.href='/login'" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Login</button>
-            <button id="logout-btn" onclick="logout()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition hidden">Logout</button>
+        <div id="auth-section" class="px-4">
+            <button id="login-btn" onclick="window.location.href='/login'" class="btn btn-small">Log in</button>
+            <button id="logout-btn" onclick="logout()" class="btn btn-small hidden">Log out</button>
         </div>
-        <div class="flex-1 overflow-y-auto">
-            <h3 id="my-texts-header" class="px-4 py-2 text-lg font-medium text-gray-300 hidden border-b border-gray-700">My Texts</h3>
-            <ul id="my-texts" class="px-4 space-y-2"></ul>
-            <h3 class="px-4 py-2 text-lg font-medium text-gray-300 border-b border-gray-700">Public Texts</h3>
-            <ul id="public-texts" class="px-4 space-y-2"></ul>
+        <div class="flex-1 overflow-y-auto pb-4">
+            <h3 id="my-texts-header" class="side-label hidden">My texts</h3>
+            <ul id="my-texts" class="side-list"></ul>
+            <h3 class="side-label">Public texts</h3>
+            <ul id="public-texts" class="side-list"></ul>
         </div>
     </div>
     <!-- Menu Toggle Button (Hamburger) -->
-    <button id="menu-btn" class="md:hidden fixed top-4 left-4 z-50 p-2 bg-gray-700 rounded-lg" onclick="toggleSideMenu()">
-        <svg id="menu-icon" class="w-6 h-6 text-gray-100" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+    <button id="menu-btn" class="icon-btn md:hidden fixed top-4 left-4 z-50" onclick="toggleSideMenu()" aria-label="Open menu">
+        <svg id="menu-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16"></path>
         </svg>
     </button>
     <!-- Main Content -->
-    <div class="flex-1 flex justify-center items-center min-h-screen p-6 md:ml-64">
-        <div class="w-full max-w-2xl bg-gray-800 rounded-lg shadow-lg p-6">
-            <svg width="220" height="40" viewBox="0 0 220 40" xmlns="http://www.w3.org/2000/svg" class="mx-auto mb-6">
+    <main class="flex-1 min-w-0 flex flex-col justify-center items-center min-h-screen px-4 pt-20 pb-6 md:p-8 md:ml-64">
+        <div class="card w-full max-w-2xl">
+            <svg width="160" height="40" viewBox="0 0 160 40" xmlns="http://www.w3.org/2000/svg" class="mx-auto mb-6" style="overflow: visible" role="img" aria-label="SaveText">
                 <!-- Document Icon -->
                 <g transform="translate(0, 5)">
-                  <rect x="0" y="0" width="24" height="30" rx="3" ry="3" fill="#CBD5E1" />
-                  <rect x="5" y="6" width="14" height="2" fill="#94A3B8" />
-                  <rect x="5" y="12" width="14" height="2" fill="#94A3B8" />
-                  <rect x="5" y="18" width="10" height="2" fill="#94A3B8" />
+                  <rect x="0" y="0" width="24" height="30" rx="3" ry="3" fill="#CBD5E1"></rect>
+                  <rect x="5" y="6" width="14" height="2" fill="#94A3B8"></rect>
+                  <rect x="5" y="12" width="14" height="2" fill="#94A3B8"></rect>
+                  <rect x="5" y="18" width="10" height="2" fill="#94A3B8"></rect>
                 </g>
                 <!-- Logo Text -->
                 <text x="34" y="30" font-family="Segoe UI, sans-serif" font-size="30" font-weight="bold">
                   <tspan fill="#3B82F6">Save</tspan><tspan fill="#EF4444">Text</tspan>
                 </text>
-              </svg>
-              
-            <input type="text" id="title" placeholder="Title" class="w-full p-3 mb-4 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <textarea id="content" placeholder="Your text here..." class="w-full p-3 mb-4 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 h-48 resize-y focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-            <select id="expireOption" class="w-full p-3 mb-4 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="no expire">No Expire</option>
-                <option value="1 year">1 Year</option>
-                <option value="1 month">1 Month</option>
-                <option value="1 week">1 Week</option>
-                <option value="1 day">1 Day</option>
-                <option value="1 hour">1 Hour</option>
+            </svg>
+
+            <h1 class="page-title text-center mb-1">Save and share text online</h1>
+            <p class="subtitle text-center mb-6">Paste your text, pick an expiry and get a link to share. No account needed.</p>
+
+            <input type="text" id="title" placeholder="Title" aria-label="Title" class="field">
+            <textarea id="content" placeholder="Write or paste text" aria-label="Text" class="field h-48"></textarea>
+            <select id="expireOption" aria-label="Expiration" class="field">
+                <option value="no expire">No expiry</option>
+                <option value="1 year">1 year</option>
+                <option value="1 month">1 month</option>
+                <option value="1 week">1 week</option>
+                <option value="1 day">1 day</option>
+                <option value="1 hour">1 hour</option>
             </select>
-            <div class="mb-4">
-                <!-- First Row: Save, Copy, Paste -->
-                <div class="grid grid-cols-3 gap-3 md:grid-cols-5">
-                    <button onclick="saveText()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition col-span-1">Save</button>
-                    <button onclick="copyText()" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition col-span-1">Copy</button>
-                    <button onclick="pasteText()" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition col-span-1">Paste</button>
-                    <!-- View Raw and Delete are hidden in this grid on mobile to avoid overlap -->
-                    <button onclick="viewRaw()" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition col-span-1 hidden md:block">View Raw</button>
-                    <button onclick="deleteText()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition col-span-1 hidden md:block">Delete</button>
-                </div>
-                <!-- Second Row: View Raw, Delete (Mobile Only) -->
-                <div class="grid grid-cols-2 gap-3 mt-3 md:hidden">
-                    <button onclick="viewRaw()" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition col-span-1">View Raw</button>
-                    <button onclick="deleteText()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition col-span-1">Delete</button>
-                </div>
+            <div class="actions">
+                <button onclick="saveText()" class="btn btn-primary">Save</button>
+                <button onclick="copyText()" class="btn">Copy</button>
+                <button onclick="pasteText()" class="btn">Paste</button>
+                <button onclick="viewRaw()" class="btn">View raw</button>
+                <button onclick="deleteText()" class="btn btn-danger actions-end">Delete</button>
             </div>
-            <p id="link" class="text-gray-300"></p>
+            <p id="notice" class="notice" role="status"></p>
+            <div id="result" class="result" hidden>
+                <div class="result-meta">
+                    <span>Saved</span>
+                    <span id="result-expiry" class="result-expiry"></span>
+                </div>
+                <a id="result-link" class="result-link" href="#"><span id="result-base"></span><span id="result-id" class="result-id"></span></a>
+            </div>
         </div>
-    </div>
+
+        <section class="about w-full max-w-2xl">
+            <h2>How it works</h2>
+            <ol>
+                <li>Type or paste your text and give it a title.</li>
+                <li>Choose when it expires: 1 hour, 1 day, 1 week, 1 month, 1 year, or never.</li>
+                <li>Save it and share the link. Anyone with the link can read the text or open the raw version.</li>
+            </ol>
+
+            <h2>Common questions</h2>
+            <h3>Do I need an account?</h3>
+            <p>No. You can save and share text without an account. Log in to keep a text under your account, so only you can change it.</p>
+            <h3>Are my texts private?</h3>
+            <p>No. Anyone with the link can read a text, even one saved under an account. Don't save passwords or other sensitive information.</p>
+            <h3>What happens when a text expires?</h3>
+            <p>It's deleted and its link stops working. Texts set to never expire stay until someone deletes them.</p>
+            <h3>Is SaveText free?</h3>
+            <p>Yes, saving and sharing text is free.</p>
+        </section>
+    </main>
 
     <script>
         let token = localStorage.getItem('token');
+        let savedUrl = '';
+
+        function notify(message, tone) {
+            const notice = document.getElementById('notice');
+            notice.textContent = message;
+            notice.dataset.tone = tone || '';
+        }
+
+        function showResult(uniqueId, expireOption) {
+            const base = `${window.location.origin}/api/texts/`;
+            savedUrl = `${base}${uniqueId}`;
+            document.getElementById('result-link').href = savedUrl;
+            document.getElementById('result-base').textContent = base;
+            document.getElementById('result-id').textContent = uniqueId;
+            document.getElementById('result-expiry').textContent =
+                expireOption === 'no expire' ? 'No expiry' : `Expires in ${expireOption}`;
+            document.getElementById('result').hidden = false;
+        }
+
+        function clearResult() {
+            savedUrl = '';
+            document.getElementById('result').hidden = true;
+        }
 
         function logout() {
             localStorage.removeItem('token');
@@ -144,28 +214,20 @@
                 publicTextsContainer.innerHTML = '';
 
                 const addTextToList = (container, texts) => {
-                    texts.forEach((text, index, array) => {
+                    texts.forEach((text) => {
                         const listItem = document.createElement('li');
-                        let liClasses = 'py-2';
-                        if (index < array.length - 1) {
-                            liClasses += ' border-b border-gray-700';
-                        }
-                        listItem.className = liClasses;
-
-                        const textWrapper = document.createElement('div');
-                        textWrapper.className = 'flex items-center';
-
-                        const dot = document.createElement('span');
-                        dot.textContent = '•';
-                        dot.className = 'mr-2 text-gray-500';
-                        textWrapper.appendChild(dot);
 
                         const link = document.createElement('a');
-                        link.textContent = text.title;
                         link.href = `${window.location.origin}/api/texts/${text.uniqueId}`;
-                        link.className = 'text-blue-400 hover:text-blue-300 truncate';
-                        textWrapper.appendChild(link);
-                        listItem.appendChild(textWrapper);
+                        link.className = 'side-link';
+                        link.rel = 'nofollow ugc';
+
+                        const title = document.createElement('span');
+                        title.textContent = text.title;
+                        title.className = 'side-link-title';
+                        link.appendChild(title);
+
+                        listItem.appendChild(link);
                         container.appendChild(listItem);
                     });
                 };
@@ -190,11 +252,11 @@
             const expireOption = document.getElementById('expireOption').value;
 
             if (!title || !content) {
-                alert('Title and content cannot be empty.');
+                notify('Add a title and some text first', 'error');
                 return;
             }
 
-            const headers = token ? { 
+            const headers = token ? {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             } : { 'Content-Type': 'application/json' };
@@ -206,13 +268,13 @@
             });
 
             if (!response.ok) {
-                alert('Failed to save the text. Please try again.');
+                notify('Could not save the text. Try again', 'error');
                 return;
             }
 
             const result = await response.json();
-            const fullUrl = `${window.location.origin}/api/texts/${result.url}`;
-            document.getElementById('link').innerText = `Link: ${fullUrl}`;
+            notify('');
+            showResult(result.url, expireOption);
             fetchSavedTexts();
         }
 
@@ -229,29 +291,34 @@
         }
 
         function viewRaw() {
-            const link = document.getElementById('link').innerText.split('Link: ')[1];
-            if (link) {
-                const rawLink = link + '/raw';
-                window.open(rawLink, '_blank');
+            if (savedUrl) {
+                window.open(`${savedUrl}/raw`, '_blank');
             } else {
-                alert('No link available');
+                notify('Save a text first', 'error');
             }
         }
 
         async function deleteText() {
-            const link = document.getElementById('link').innerText.split('Link: ')[1];
-            if (link) {
-                const uniqueId = link.split('/').pop();
-                const headers = token ? { Authorization: `Bearer ${token}` } : {};
-                await fetch(`/api/texts/${uniqueId}`, {
-                    method: 'DELETE',
-                    headers
-                });
-                alert('Text deleted');
-                fetchSavedTexts();
-            } else {
-                alert('No link available');
+            if (!savedUrl) {
+                notify('Save a text first', 'error');
+                return;
             }
+            if (!confirm('Delete this text?')) {
+                return;
+            }
+            const uniqueId = savedUrl.split('/').pop();
+            const headers = token ? { Authorization: `Bearer ${token}` } : {};
+            const response = await fetch(`/api/texts/${uniqueId}`, {
+                method: 'DELETE',
+                headers
+            });
+            if (!response.ok) {
+                notify('Could not delete the text', 'error');
+                return;
+            }
+            clearResult();
+            notify('Text deleted');
+            fetchSavedTexts();
         }
 
         function toggleSideMenu() {

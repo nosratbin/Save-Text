@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const router = express.Router();
 const shortid = require('shortid');
 const Text = require('../models/Text');
@@ -23,6 +24,11 @@ function getExpiryDate(expireOption) {
     }
 }
 
+// MongoDB removes expired texts on a delay, so reads have to skip them as well.
+function notExpired() {
+    return { $or: [{ expireAt: null }, { expireAt: { $gt: new Date() } }] };
+}
+
 // Helper function to escape HTML characters
 function escapeHtml(text) {
     return text.replace(/[&<>"']/g, function (match) {
@@ -42,7 +48,7 @@ function escapeHtml(text) {
 }
 
 router.post('/save', async (req, res) => {
-    const { title, content, expireOption } = req.body;
+    const { title, content, expireOption } = req.body ?? {};
     if (!content || !content.trim()) {
         return res.status(400).json({ error: 'Text content cannot be empty!' });
     }
@@ -69,7 +75,7 @@ router.post('/save', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
     const { id } = req.params;
-    const { title, content, expireOption } = req.body;
+    const { title, content, expireOption } = req.body ?? {};
 
     if (!content || !content.trim()) {
         return res.status(400).json({ error: 'Text content cannot be empty!' });
@@ -84,21 +90,24 @@ router.put('/:id', async (req, res) => {
         query.userId = null; // Only allow updating anonymous texts if not logged in
     }
 
-    const expireAt = getExpiryDate(expireOption);
-    const update = {
-        title: title || 'Untitled',
-        content,
-        expireOption,
-        expireAt
-    };
+    query.$and = [notExpired()];
 
     try {
-        const updatedText = await Text.findOneAndUpdate(query, update, { new: true });
-        if (updatedText) {
-            res.json({ message: 'Text updated successfully', url: id });
-        } else {
-            res.status(404).json({ error: 'Text not found or you are not authorized to update it.' });
+        const text = await Text.findOne(query);
+        if (!text) {
+            return res.status(404).json({ error: 'Text not found or you are not authorized to update it.' });
         }
+
+        text.title = title || 'Untitled';
+        text.content = content;
+        // Editing a text keeps its countdown. Only picking a new option restarts it.
+        if (expireOption !== text.expireOption) {
+            text.expireOption = expireOption;
+            text.expireAt = getExpiryDate(expireOption);
+        }
+        await text.save();
+
+        res.json({ message: 'Text updated successfully', url: id, expireAt: text.expireAt });
     } catch (error) {
         console.error("Error updating text:", error);
         res.status(500).json({ error: 'Failed to update text' });
@@ -132,7 +141,7 @@ router.delete('/:id', async (req, res) => {
 router.get('/:id', async (req, res) => {
     const { id } = req.params;
     try {
-        const text = await Text.findOne({ uniqueId: id });
+        const text = await Text.findOne({ uniqueId: id, ...notExpired() });
         if (text) {
             const escapedTitle = escapeHtml(text.title);
             const escapedContent = escapeHtml(text.content);
@@ -155,66 +164,58 @@ router.get('/:id', async (req, res) => {
                     <meta charset="UTF-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
                     <title>${escapedTitle || 'Untitled Text'}</title>
+                    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+                    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+                    <link href="/theme.css" rel="stylesheet">
                     <script src="https://cdn.tailwindcss.com"></script>
-                    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-                    <style>
-                        body {
-                            font-family: 'Inter', sans-serif;
-                        }
-                        textarea::-webkit-scrollbar {
-                            width: 8px;
-                        }
-                        textarea::-webkit-scrollbar-track {
-                            background: #2d3748; /* bg-gray-700 */
-                        }
-                        textarea::-webkit-scrollbar-thumb {
-                            background: #4a5568; /* bg-gray-600 */
-                            border-radius: 4px;
-                        }
-                        textarea::-webkit-scrollbar-thumb:hover {
-                            background: #718096; /* bg-gray-500 */
-                        }
-                    </style>
                 </head>
-                <body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col items-center justify-center p-4 selection:bg-blue-500 selection:text-white">
-                    <div class="w-full max-w-2xl bg-gray-800 rounded-lg shadow-xl p-6 md:p-8">
-                        <h1 class="text-3xl font-bold mb-6 text-gray-100 text-center">${escapedTitle || 'Untitled Text'}</h1>
+                <body class="app min-h-screen flex flex-col items-center justify-center p-4">
+                    <div class="card w-full max-w-2xl">
+                        <h1 class="page-title mb-6">${escapedTitle || 'Untitled Text'}</h1>
                         
-                        <label for="title" class="block text-sm font-medium text-gray-300 mb-1">Title</label>
-                        <input type="text" id="titleInput" value="${escapedTitle || ''}" placeholder="Enter title..." 
-                               class="w-full p-3 mb-4 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400">
+                        <label for="titleInput" class="label">Title</label>
+                        <input type="text" id="titleInput" value="${escapedTitle || ''}" placeholder="Title" class="field">
                         
-                        <label for="content" class="block text-sm font-medium text-gray-300 mb-1">Content</label>
-                        <textarea id="contentInput" placeholder="Your text here..."
-                                  class="w-full p-3 mb-4 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 h-72 md:h-80 resize-y focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400">${escapedContent}</textarea>
+                        <label for="contentInput" class="label">Text</label>
+                        <textarea id="contentInput" placeholder="Write or paste text" class="field h-72 md:h-80">${escapedContent}</textarea>
                         
-                        <label for="expireOption" class="block text-sm font-medium text-gray-300 mb-1">Expiration</label>
-                        <select id="expireOptionInput" 
-                                class="w-full p-3 mb-6 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="no expire" ${text.expireOption === 'no expire' ? 'selected' : ''}>No Expire</option>
-                            <option value="1 hour" ${text.expireOption === '1 hour' ? 'selected' : ''}>1 Hour</option>
-                            <option value="1 day" ${text.expireOption === '1 day' ? 'selected' : ''}>1 Day</option>
-                            <option value="1 week" ${text.expireOption === '1 week' ? 'selected' : ''}>1 Week</option>
-                            <option value="1 month" ${text.expireOption === '1 month' ? 'selected' : ''}>1 Month</option>
-                            <option value="1 year" ${text.expireOption === '1 year' ? 'selected' : ''}>1 Year</option>
+                        <label for="expireOptionInput" class="label">Expiration</label>
+                        <select id="expireOptionInput" class="field">
+                            <option value="no expire" ${text.expireOption === 'no expire' ? 'selected' : ''}>No expiry</option>
+                            <option value="1 hour" ${text.expireOption === '1 hour' ? 'selected' : ''}>1 hour</option>
+                            <option value="1 day" ${text.expireOption === '1 day' ? 'selected' : ''}>1 day</option>
+                            <option value="1 week" ${text.expireOption === '1 week' ? 'selected' : ''}>1 week</option>
+                            <option value="1 month" ${text.expireOption === '1 month' ? 'selected' : ''}>1 month</option>
+                            <option value="1 year" ${text.expireOption === '1 year' ? 'selected' : ''}>1 year</option>
                         </select>
+                        <p id="expiresAt" class="subtitle mb-4" data-at="${text.expireAt ? text.expireAt.toISOString() : ''}"></p>
                         
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-                            <button id="saveBtn" onclick="saveText()" class="w-full px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">Save</button>
-                            <button onclick="viewRaw()" class="w-full px-4 py-2.5 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50">View Raw</button>
-                            <button onclick="copyText()" class="w-full px-4 py-2.5 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50">Copy</button>
-                            <button id="deleteBtn" onclick="deleteText()" class="w-full px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50">Delete</button>
+                        <div class="actions">
+                            <button id="saveBtn" onclick="saveText()" class="btn btn-primary">Save</button>
+                            <button onclick="viewRaw()" class="btn">View raw</button>
+                            <button onclick="copyText()" class="btn">Copy</button>
+                            <button id="deleteBtn" onclick="deleteText()" class="btn btn-danger actions-end">Delete</button>
                         </div>
+                        <p id="notice" class="notice" role="status"></p>
 
-                        <div class="text-center">
-                            <a href="/" class="text-blue-400 hover:text-blue-300 hover:underline transition duration-150 ease-in-out">← Back to Home</a>
-                        </div>
+                        <p class="mt-6"><a href="/" class="text-link">Back to home</a></p>
                     </div>
                     
                     <script>
                         const textId = '${id}';
                         const currentToken = localStorage.getItem('token');
                         const canModifyClient = ${canModify}; // Use the server-determined value
+
+                        function notify(message, tone) {
+                            const notice = document.getElementById('notice');
+                            notice.textContent = message;
+                            notice.dataset.tone = tone || '';
+                        }
+
+                        function showExpiry(value) {
+                            document.getElementById('expiresAt').textContent = value ? 'Expires ' + new Date(value).toLocaleString() : '';
+                        }
+                        showExpiry(document.getElementById('expiresAt').dataset.at);
 
                         const titleField = document.getElementById('titleInput');
                         const contentField = document.getElementById('contentInput');
@@ -244,13 +245,13 @@ router.get('/:id', async (req, res) => {
                             try {
                                 document.execCommand('copy');
                             } catch (err) {
-                                alert('Failed to copy text. Your browser might not support this feature or permissions are denied.');
+                                notify('Could not copy the text', 'error');
                             }
                         }
 
                         async function saveText() {
                             if (!canModifyClient) {
-                                alert("You are not authorized to modify this text.");
+                                notify('You cannot edit this text', 'error');
                                 return;
                             }
                             const title = titleField.value;
@@ -258,7 +259,7 @@ router.get('/:id', async (req, res) => {
                             const expireOption = expireOptionField.value;
 
                             if (!content.trim()) {
-                                alert('Content cannot be empty.');
+                                notify('Add some text first', 'error');
                                 return;
                             }
                             
@@ -275,24 +276,25 @@ router.get('/:id', async (req, res) => {
                                 });
                                 const result = await response.json();
                                 if (response.ok) {
-                                    alert('Text updated successfully!');
+                                    notify('Saved');
+                                    showExpiry(result.expireAt);
                                     document.querySelector('h1').textContent = title || 'Untitled Text';
                                     document.title = title || 'Untitled Text';
                                 } else {
-                                    alert(result.error || 'Failed to update text. You may not be authorized.');
+                                    notify(result.error || 'Could not update the text', 'error');
                                 }
                             } catch (error) {
                                 console.error('Error updating text:', error);
-                                alert('Error updating text. Please check console or try again.');
+                                notify('Could not update the text. Try again', 'error');
                             }
                         }
 
                         async function deleteText() {
                              if (!canModifyClient) {
-                                alert("You are not authorized to delete this text.");
+                                notify('You cannot delete this text', 'error');
                                 return;
                             }
-                            if (!confirm('Are you sure you want to delete this text?')) {
+                            if (!confirm('Delete this text?')) {
                                 return;
                             }
 
@@ -307,15 +309,14 @@ router.get('/:id', async (req, res) => {
                                     headers: requestHeaders
                                 });
                                 if (response.ok) {
-                                    alert('Text deleted successfully');
                                     window.location.href = '/';
                                 } else {
                                     const result = await response.json().catch(() => ({error: 'Failed to delete text.'}));
-                                    alert(result.error || 'Failed to delete text: Not authorized or text not found.');
+                                    notify(result.error || 'Could not delete the text', 'error');
                                 }
                             } catch (error) {
                                 console.error('Error deleting text:', error);
-                                alert('Error deleting text. Please check console or try again.');
+                                notify('Could not delete the text. Try again', 'error');
                             }
                         }
                     </script>
@@ -323,26 +324,7 @@ router.get('/:id', async (req, res) => {
                 </html>
             `);
         } else {
-            res.status(404).send(`
-                <!DOCTYPE html>
-                <html lang="en">
-                <head>
-                    <meta charset="UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>Text Not Found</title>
-                    <script src="https://cdn.tailwindcss.com"></script>
-                    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-                    <style>body { font-family: 'Inter', sans-serif; }</style>
-                </head>
-                <body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col items-center justify-center p-4">
-                    <div class="text-center">
-                        <h1 class="text-4xl font-bold text-red-500 mb-4">404 - Text Not Found</h1>
-                        <p class="text-xl text-gray-300 mb-8">The text you are looking for does not exist or may have expired.</p>
-                        <a href="/" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-150 ease-in-out">Go to Homepage</a>
-                    </div>
-                </body>
-                </html>
-            `);
+            res.status(404).sendFile(path.join(__dirname, '..', 'public', '404.html'));
         }
     } catch (error) {
         console.error("Error fetching text by ID:", error);
@@ -352,16 +334,16 @@ router.get('/:id', async (req, res) => {
              <head>
                  <meta charset="UTF-8">
                  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                 <title>Server Error</title>
+                 <title>Server error</title>
+                 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+                 <link href="/theme.css" rel="stylesheet">
                  <script src="https://cdn.tailwindcss.com"></script>
-                 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-                 <style>body { font-family: 'Inter', sans-serif; }</style>
              </head>
-             <body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col items-center justify-center p-4">
+             <body class="app min-h-screen flex flex-col items-center justify-center p-4">
                  <div class="text-center">
-                     <h1 class="text-4xl font-bold text-orange-500 mb-4">500 - Server Error</h1>
-                     <p class="text-xl text-gray-300 mb-8">Something went wrong on our end. Please try again later.</p>
-                     <a href="/" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-150 ease-in-out">Go to Homepage</a>
+                     <h1 class="page-title mb-2">Server error</h1>
+                     <p class="subtitle mb-6">Something went wrong on our end. Please try again later.</p>
+                     <a href="/" class="btn btn-primary">Go to homepage</a>
                  </div>
              </body>
              </html>
@@ -372,7 +354,7 @@ router.get('/:id', async (req, res) => {
 router.get('/:id/raw', async (req, res) => {
     const { id } = req.params;
     try {
-        const text = await Text.findOne({ uniqueId: id });
+        const text = await Text.findOne({ uniqueId: id, ...notExpired() });
         if (text) {
             res.type('text/plain');
             res.send(text.content);
@@ -388,11 +370,13 @@ router.get('/:id/raw', async (req, res) => {
 
 router.get('/', async (req, res) => {
     try {
-        const publicTexts = await Text.find({ userId: null });
+        // The sidebar only needs links, so leave the text content in the database.
+        const listFields = 'uniqueId title';
+        const publicTexts = await Text.find({ userId: null, ...notExpired() }).select(listFields).lean();
         let myTexts = [];
         
         if (req.user) {
-            myTexts = await Text.find({ userId: req.user.id });
+            myTexts = await Text.find({ userId: req.user.id, ...notExpired() }).select(listFields).lean();
         }
         
         res.json({ myTexts, publicTexts });

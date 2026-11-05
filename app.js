@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
@@ -38,6 +39,12 @@ function authenticateToken(req, res, next) {
 
 app.use(authenticateToken);
 
+// Saved texts are user content, so keep them and the API out of search results.
+app.use('/api', (req, res, next) => {
+    res.set('X-Robots-Tag', 'noindex');
+    next();
+});
+
 app.use('/api/texts', textRoutes);
 app.use('/api/auth', authRoutes);
 
@@ -49,19 +56,29 @@ app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
+app.use((req, res) => {
+    res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
+});
+
 const Text = require('./models/Text');
 
 async function deleteExpiredTexts() {
-    const now = new Date();
-    const result = await Text.deleteMany({ expireAt: { $lte: now } });
-    if (result.deletedCount > 0) {
-        console.log(`${result.deletedCount} expired text(s) deleted`);
+    try {
+        const now = new Date();
+        const result = await Text.deleteMany({ expireAt: { $lte: now } });
+        if (result.deletedCount > 0) {
+            console.log(`${result.deletedCount} expired text(s) deleted`);
+        }
+    } catch (error) {
+        // An unhandled failure here would crash the server.
+        console.error('Failed to delete expired texts', error);
     }
 }
 
 setInterval(deleteExpiredTexts, 60 * 60 * 1000);
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+app.listen(PORT, (error) => {
+    if (error) throw error;
     console.log(`Server is running on port ${PORT}`);
 });

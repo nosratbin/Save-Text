@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page not found - SaveText</title>
+    <meta name="robots" content="noindex">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+    <link href="/theme.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="app min-h-screen flex items-center justify-center p-4">
+    <div class="card w-full max-w-md text-center">
+        <svg width="160" height="40" viewBox="0 0 160 40" xmlns="http://www.w3.org/2000/svg" class="mx-auto mb-6" style="overflow: visible">
+            <!-- Document Icon -->
+            <g transform="translate(0, 5)">
+              <rect x="0" y="0" width="24" height="30" rx="3" ry="3" fill="#CBD5E1"></rect>
+              <rect x="5" y="6" width="14" height="2" fill="#94A3B8"></rect>
+              <rect x="5" y="12" width="14" height="2" fill="#94A3B8"></rect>
+              <rect x="5" y="18" width="10" height="2" fill="#94A3B8"></rect>
+            </g>
+            <!-- Logo Text -->
+            <text x="34" y="30" font-family="Segoe UI, sans-serif" font-size="30" font-weight="bold">
+              <tspan fill="#3B82F6">Save</tspan><tspan fill="#EF4444">Text</tspan>
+            </text>
+        </svg>
+        <p class="not-found-code mb-1">404</p>
+        <h1 class="page-title mb-2">Nothing saved here</h1>
+        <p class="subtitle mb-4">This page does not exist, or the text was deleted or has expired.</p>
+        <p id="path" class="not-found-path"></p>
+        <a href="/" class="btn btn-primary">Go to homepage</a>
+    </div>
+    <script>
+        document.getElementById('path').textContent = window.location.pathname;
+    </script>
+</body>
+</html>

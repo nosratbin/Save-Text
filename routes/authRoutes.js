@@ -7,7 +7,7 @@ const User = require('../models/User');
 const JWT_SECRET = process.env.JWT_SECRET;
 
 router.post('/login', async (req, res) => {
-    const { username, password } = req.body;
+    const { username, password } = req.body ?? {};
     if (!username || !password) {
         return res.status(400).json({ error: 'Username and password are required' });
     }
@@ -24,7 +24,7 @@ router.post('/login', async (req, res) => {
 });
 
 router.post('/signup', async (req, res) => {
-    const { username, password } = req.body;
+    const { username, password } = req.body ?? {};
     if (!username || !password) {
         return res.status(400).json({ error: 'Username and password are required' });
     }
